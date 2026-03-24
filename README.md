@@ -53,7 +53,7 @@ This repository intentionally avoids including:
 - model files
 - confidential design data
 - internal library names
-- customer or project specific content
+- project specific content
 
 You should adapt the placeholders in the scripts to your own environment before using them.
 
