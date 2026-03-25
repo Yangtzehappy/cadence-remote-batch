@@ -15,6 +15,8 @@ Prefer this order of operations:
 3. Use `dbAccess` for OA inspection and deterministic schematic edits.
 4. Use `spectre` and `ocean -nograph` for batch simulation and result export.
 5. Pull exported CSV data local and plot locally if the remote GUI is fragile.
+6. Inspect the generated netlist before trusting results.
+7. Keep each process kit in its own launcher, cds.lib, and scratch tree.
 
 ## Workflow
 
@@ -65,10 +67,23 @@ For programmatic schematic creation:
 - add visible wire shapes
 - add visible labels
 - keep coordinates compact and comparable to normal symbol sizes
+- keep the schematic readable for humans, not just electrically connected
+- prefer short stubs plus explicit net names over long crossing wires
+- verify the extracted netlist matches the intended device sizing and pin order
 
 Do not assume a created instance will automatically produce a readable canvas layout.
 
-### 4. Handle symbols separately from schematics
+### 4. Verify the netlist, not only the schematic
+
+After `createNetlist()` or any export step:
+- inspect the generated `input.scs`
+- confirm subcircuit pin order
+- confirm device widths, finger counts, and other hidden CDF-mapped parameters
+- confirm the intended testbench is the source of truth, not a hand-written copy
+
+If a parameter looks correct in the GUI but wrong in the netlist, trust the netlist and inspect the CDF mapping.
+
+### 5. Handle symbols separately from schematics
 
 Schematic success does not imply symbol success.
 
@@ -79,7 +94,7 @@ If hierarchical testbenches are needed:
 
 Use `scripts/inspect_symbol_pins.il` to inspect master symbol pin locations and term names.
 
-### 5. Prefer batch simulation
+### 6. Prefer batch simulation
 
 For remote work, prefer:
 - `spectre` for simulation
@@ -95,7 +110,16 @@ Recommended pattern:
 
 Use `scripts/export_results_template.ocn` as a starting point for PSF export.
 
-### 6. Keep reusable assets generic
+### 7. Keep installations isolated
+
+When multiple process kits or library sets are available, isolate them:
+- use separate launcher shortcuts or shell wrappers
+- keep separate `cds.lib` and scratch/result directories
+- do not mix unrelated process environments in one session unless that is the explicit goal
+- if a legacy CDB library must be reused, convert it into a dedicated OA copy instead of sharing the source tree
+- prefer launching from a dedicated work directory so startup picks up the intended local `cds.lib`
+
+### 8. Keep reusable assets generic
 
 For anything intended for GitHub or reuse:
 - never hard-code confidential library names
@@ -130,3 +154,5 @@ Read [references/common-pitfalls.md](references/common-pitfalls.md) when:
 - Do not delete lock files blindly while a GUI editor may still be open.
 - Separate "Cadence/OA problem" from "circuit-design problem" early.
 - If the goal is verification, do not let symbol automation block batch simulation.
+- Prefer schematic-driven netlisting when the schematic is meant to be reviewed by humans.
+- Treat library conversion, schematic graphics, and simulation as separate checkpoints.

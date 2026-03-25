@@ -13,6 +13,21 @@ Typical cause:
 What to do:
 - Compare `cdsinfo.tag` against a known-good local design library
 - For ordinary design libraries, expect a normal filesystem-backed library, not a custom DM plugin
+- If a source kit is still in legacy CDB form, convert it into a dedicated OA copy in an isolated work tree before using it in a new flow
+
+## 1b. Different launch directories see different libraries
+
+Symptom:
+- Virtuoso launched from one directory shows one process set
+- The same executable launched from another directory shows a different process set
+
+Typical cause:
+- local `cds.lib` files or wrapper scripts are being picked up from the current working directory
+
+What to do:
+- use a dedicated launcher directory for each process kit
+- keep `cds.lib`, scratch data, and results under the same isolated root
+- verify the active library set at startup before editing anything
 
 ## 2. The schematic is black or looks empty
 
@@ -83,3 +98,53 @@ What to do:
 - decouple electrical verification from symbol automation
 - run a standalone Spectre deck first
 - come back to hierarchical symbol generation after the electrical behavior is verified
+
+## 7. The schematic looks right, but the netlist is wrong
+
+Symptom:
+- The GUI shows the intended size or topology
+- The generated `input.scs` uses unexpected values or defaults
+
+Typical causes:
+- hidden CDF parameters were not mapped the way the PDK expects
+- finger count, total width, or wrapper parameters were not propagated
+- the testbench was edited by hand instead of being netlisted from the schematic source of truth
+
+What to do:
+- inspect the generated netlist every time the flow changes
+- compare visible schematic parameters to netlisted device parameters
+- do not trust the GUI alone when hidden fields may control the actual instance
+
+## 8. The schematic is electrically correct but hard for humans to review
+
+Symptom:
+- connectivity checks pass
+- the picture still suggests shorts or ambiguous crossings
+- long wires cross through symbols or pin neighborhoods
+
+Typical causes:
+- the drawing was optimized for connectivity only
+- labels were omitted or not attached to wires
+- too many wires were routed as one long bus
+
+What to do:
+- use short stubs plus explicit wire names
+- keep power and ground visually local
+- avoid crossings that look like shorts even if they are not
+- treat human readability as a design requirement, not a cosmetic extra
+
+## 9. Multiple process environments interfere with each other
+
+Symptom:
+- one launch sees a different process set than another
+- the same tool behaves differently depending on startup location
+
+Typical causes:
+- shared `cds.lib` or startup scripts
+- mixing unrelated libraries in one shell/session
+- reusing scratch directories across process kits
+
+What to do:
+- keep each process kit in its own launcher or wrapper
+- isolate `cds.lib`, results, and scratch paths
+- avoid cross-contaminating one environment with another unless you are intentionally comparing them

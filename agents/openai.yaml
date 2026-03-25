@@ -1,4 +1,4 @@
 interface:
   display_name: "Cadence Remote Batch"
-  short_description: "Inspect OA, repair schematics, and run Spectre remotely."
-  default_prompt: "Use $cadence-remote-batch to inspect a remote Cadence library, fix a schematic view, and run batch simulations."
+  short_description: "Inspect OA, keep schematics readable, and run Spectre remotely."
+  default_prompt: "Use $cadence-remote-batch to inspect a remote Cadence library, verify schematic-driven netlisting, and run batch simulations without relying on the GUI."
